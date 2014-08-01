@@ -1,0 +1,62 @@
+# Snotra backup configuration file.
+
+[DEFAULT]
+
+gpg_passphrase = SomethingSecret
+target_folder  = /backup
+log_file       = snotra.log
+
+full-if-older-than = 1W
+remove-older-than  = 1M
+
+#
+# Database
+#
+
+db_user = backup
+db_pass = SomethingSecret
+
+#
+# gsutil
+#
+
+gsutil_enable = true
+gsutil_folder = /path/to/gsutil
+gs_bucket     = bucket-name
+
+
+#
+# BACKUP DEFINITIONS
+#
+
+[database]
+enabled     = true
+source      = /tmp/db
+target      = /db
+database    = my_website, mysql
+pre_action  = mkdir %(source)s
+post_action = rm -rf %(source)s
+
+[etc]
+enabled = true
+source  = /etc
+
+[home]
+enabled = false
+source  = /home
+
+[root]
+enabled = false
+source  = /root
+
+[var]
+enabled = false
+source  = /var
+
+[usr/local]
+enabled = false
+source  = /usr/local
+
+[usr/share]
+enabled = false
+source  = /usr/share
