@@ -1,45 +1,111 @@
-# Snotra backup configuration file.
+# Snotra-backup configuration file.
+#
+# This is just a sample file, you will need to input your settings and copy the
+# file to /etc/snotra/snotra.conf
+#
+# Author: Thomas Jensen
+#
+# $Revision$
+#
+
+# The DEFAULT sets global options, some of which can be overridden
+# in the backup definitions afterwards.
 
 [DEFAULT]
 
+# Passphrase to use when encrypting the backups with duplicity.
 gpg_passphrase = SomethingSecret
-target_folder  = /backup
-log_file       = snotra.log
 
+# Folder where all backups will be stored.
+target_folder = /backup
+
+# Location of Snotra-backup log file
+log_file = /var/log/snotra.log
+
+# 
+# Time: s, m, h, D, W, M, Y (seconds, minutes, hours, days, weeks, months, years)
+
+# Force full backup (instead of incremental) if the last full was this long ago.
 full-if-older-than = 1W
+
+# Remove any backup files that are older than this, unless they have incremental
+# backups that depend on them. Then do not remove them until the incrementals can
+# also be removed.
 remove-older-than  = 1M
 
 #
-# Database
+# DATABASE
 #
 
+# Database credentials to connect with when doing mysqldump, must have SELECT
+# and LOCK TABLES privileges to ALL databases defined in the backup definitions.
 db_user = backup
 db_pass = SomethingSecret
 
 #
-# gsutil
+# CLOUD STORAGE
 #
 
-gsutil_enable = true
-gsutil_folder = /path/to/gsutil
-gs_bucket     = bucket-name
+#
+# Google Cloud Storage
 
+# gsutil is used for connecting to Google Cloud Storage.
+gsutil_enable = true
+
+# Folder where 'gsutil' executable can be located.
+gsutil_folder = /path/to/gsutil
+
+# Name of storage bucket in Google Developers Console.
+gs_bucket = bucket-name
+
+#
+# Amazon AWS
+
+# s3cmd is used for connecting to Amazon AWS.
+s3cmd_enabled = false
+
+# Folder where 's3cmd' executable can be located.
+s3cmd_folder  = /path/to/s3cmd
+
+# Name of storage bucket in Amazon AWS.
+s3_bucket     = bucket-name
 
 #
 # BACKUP DEFINITIONS
 #
 
+#
+# Example 1
+# * Make folder /tmp/db
+# * Dump databases: 'my_website' and 'mysql' to /tmp/db
+# * Run duplicity backup on /tmp/db and store in /backup/db
+# * Remove folder /tmp/db
+
+# Name of definition (required).
 [database]
-enabled     = true
-source      = /tmp/db
-target      = /db
-database    = my_website, mysql
-pre_action  = mkdir %(source)s
+# Turn on/off definition (required).
+enabled = true
+# Folder to back-up (required).
+source = /tmp/db
+# Target folder, appended to global 'target_folder'. Set to 'source' if not defined.
+target = /db
+# Comma separeted list of databases to dump, will be placed in 'source' folder.
+database = my_website, mysql
+# Command to execute before executing any backup steps.
+pre_action = mkdir %(source)s
+# Commend to execute after backup has been executed.
 post_action = rm -rf %(source)s
+
+#
+# Example 2
+# * Run duplicity backup on /etc and store in /backup/etc
 
 [etc]
 enabled = true
 source  = /etc
+
+#
+# Definition suggestions
 
 [home]
 enabled = false

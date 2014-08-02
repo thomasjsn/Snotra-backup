@@ -2,20 +2,6 @@
 
 # This file is part of Snotra-backup.
 #
-# Snotra-backup is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-#
-# Snotra-backup is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Snotra-backup; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
 # Author: Thomas Jensen
 #
 # $Revision$
@@ -24,17 +10,43 @@ __author__ = "Thomas Jensen"
 __version__ = "$Revision$"
 __date__ = "$Date$"
 __copyright__ = "Copyright (c) 2014 Thomas Jensen"
-__license__ = "GPL"
+__license__ = "MIT"
 
-version = "0.1.0"
+version = "0.2.0"
 
-import ConfigParser, subprocess, logging, shlex, os, re, sys
+import ConfigParser, subprocess, logging, shlex, os, re, sys, getopt
+
+sys.path.insert(1, "/usr/local/share/snotra")
+
+dry_run = False
+config_file = "/etc/snotra/snotra.conf"
+
+try:                                
+  opts, args = getopt.getopt(sys.argv[1:], "dc:v", ["dry-run", "config="])
+except getopt.GetoptError:
+  print "Error handling command-line arguments"
+  exit(2)
+
+for opt, arg in opts:
+  if opt in ("-d", "--dry-run"):
+    dry_run = True
+
+  elif opt in ("-c", "--config"):
+    if os.path.isfile(arg):
+      config_file = arg
+
+  elif opt == '-v':
+    print ('%(app)s ver. %(ver)s' % {'app': sys.argv[0], 'ver': version})
+    exit(0)
 
 Config = ConfigParser.ConfigParser()
-Config.read("/etc/snotra/snotra.conf")
+Config.read(config_file)
 
 log_file = Config.get('DEFAULT', 'log_file')
 logging.basicConfig(filename=log_file,format='%(asctime)s %(levelname)s\t%(message)s',level=logging.DEBUG)
+
+logging.info('Running Snotra-backup')
+logging.info('Using config: %s', config_file)
 
 gpg_passphrase = Config.get('DEFAULT', 'gpg_passphrase')
 target_folder = Config.get('DEFAULT', 'target_folder')
@@ -45,11 +57,13 @@ remove_if_older = Config.get('DEFAULT', 'remove-older-than')
 db_user = Config.get('DEFAULT', 'db_user')
 db_pass = Config.get('DEFAULT', 'db_pass')
 
-gsutil_enable = Config.getboolean('DEFAULT', 'gsutil_enable')
-gsutil_folder = Config.get('DEFAULT', 'gsutil_folder')
-gs_bucket     = Config.get('DEFAULT', 'gs_bucket')
+gsutil_enabled = Config.getboolean('DEFAULT', 'gsutil_enabled')
+gsutil_folder  = Config.get('DEFAULT', 'gsutil_folder')
+gs_bucket      = Config.get('DEFAULT', 'gs_bucket')
 
-logging.info('Running Snotra-backup')
+s3cmd_enabled = Config.getboolean('DEFAULT', 's3cmd_enabled')
+s3cmd_folder  = Config.get('DEFAULT', 's3cmd_folder')
+s3_bucket      = Config.get('DEFAULT', 's3_bucket')
 
 duplicity_log = '/tmp/duplicity.log'
 
@@ -62,12 +76,15 @@ def RunCommand(command, duplicity = False):
   FNULL = open(os.devnull, 'w') 
   logging.debug('CMD: %s' % command)
 
-  if not '--dry' in sys.argv:
-    subprocess.call(shlex.split(command), stdout=FNULL, stderr=subprocess.STDOUT)
+  if not dry_run:
+    if not duplicity:
+      subprocess.call(shlex.split(command))
+    else:
+      subprocess.call(shlex.split(command), stdout=FNULL, stderr=subprocess.STDOUT)
   else:
     print shlex.split(command)
 
-  if duplicity:
+  if duplicity and not dry_run:
     try:
       with open (duplicity_log, "r") as myfile:
         data=myfile.read().split('\n\n')
@@ -146,10 +163,17 @@ for (i, item) in enumerate(Config.sections()):
 
       logging.info('Finished: %s', item)
 
-if gsutil_enable:
+if gsutil_enabled:
   logging.info('Synchronizing to: %s', 'Google Cloud Storage')
   gsutil_cmd = ('%(folder)s/gsutil -m -q rsync -d -r %(target)s gs://%(bucket)s' %
                {'folder': gsutil_folder, 'target': target_folder, 'bucket': gs_bucket})
   RunCommand(gsutil_cmd)
+
+if s3cmd_enabled:
+  logging.info('Synchronizing to: %s', 'Amazon AWS')
+  s3cmd_cmd = ('%(folder)s/s3cmd -q sync --delete-removed -r %(target)s gs://%(bucket)s' %
+               {'folder': s3cmd_folder, 'target': target_folder, 'bucket': s3_bucket})
+  RunCommand(s3cmd_cmd)
+
 
 logging.info('All done, exiting...\n')
