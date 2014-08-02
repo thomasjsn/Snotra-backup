@@ -28,10 +28,10 @@ __license__ = "GPL"
 
 version = "0.1.0"
 
-import ConfigParser, subprocess, logging, shlex, os, re
+import ConfigParser, subprocess, logging, shlex, os, re, sys
 
 Config = ConfigParser.ConfigParser()
-Config.read("snotra.conf")
+Config.read("/etc/snotra/snotra.conf")
 
 log_file = Config.get('DEFAULT', 'log_file')
 logging.basicConfig(filename=log_file,format='%(asctime)s %(levelname)s\t%(message)s',level=logging.DEBUG)
@@ -53,18 +53,30 @@ logging.info('Running Snotra-backup')
 
 duplicity_log = '/tmp/duplicity.log'
 
+if len(sys.argv) > 1:
+  args = sys.argv
+  del args[0]
+  logging.debug('Argument List: %s', str(args))
+
 def RunCommand(command, duplicity = False):
   FNULL = open(os.devnull, 'w') 
   logging.debug('CMD: %s' % command)
-  subprocess.call(shlex.split(command), stdout=FNULL, stderr=subprocess.STDOUT)
+
+  if not '--dry' in sys.argv:
+    subprocess.call(shlex.split(command), stdout=FNULL, stderr=subprocess.STDOUT)
+  else:
+    print shlex.split(command)
 
   if duplicity:
-    with open (duplicity_log, "r") as myfile:
-      data=myfile.read().split('\n\n')
-      for logline in data:
-        if not re.match('^(WARNING) 1', logline) and not logline == '':
-          logging.info(logline.replace('\n.',''))
-    os.remove(duplicity_log)
+    try:
+      with open (duplicity_log, "r") as myfile:
+        data=myfile.read().split('\n\n')
+        for logline in data:
+          if not re.match('^(WARNING) 1', logline) and not logline == '':
+            logging.info(logline.replace('\n.',''))
+      os.remove(duplicity_log)
+    except IOError:
+      logging.error('Error processing log file: %s', duplicity_log)
 
 os.environ["PASSPHRASE"] = gpg_passphrase
 
@@ -107,7 +119,7 @@ for (i, item) in enumerate(Config.sections()):
     
     if enabled:
 
-      logging.info('Backup up: %s', item)
+      logging.info('Start: %s', item)
 
       if not pre_action == None:
         pre_command = (pre_action % {'source': source, 'target': target})
@@ -115,7 +127,7 @@ for (i, item) in enumerate(Config.sections()):
 
       if not database == None:
         for (y, db_item) in enumerate(database.split(',')):
-          db_command = ('mysqldump -u%(db_user)s -p%(db_pass)s %(db)s > %(source)s/%(db)s.sql' %
+          db_command = ('mysqldump -u%(db_user)s -p%(db_pass)s %(db)s --result-file=%(source)s/%(db)s.sql' %
                        {'db_user': db_user, 'db_pass':db_pass, 'db':db_item.strip(), 'source': source})
           RunCommand(db_command)
           
@@ -131,6 +143,8 @@ for (i, item) in enumerate(Config.sections()):
       if not post_action == None:
         post_command = (post_action % {'source': source, 'target': target})
         RunCommand(post_command)
+
+      logging.info('Finished: %s', item)
 
 if gsutil_enable:
   logging.info('Synchronizing to: %s', 'Google Cloud Storage')
