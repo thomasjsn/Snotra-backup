@@ -1,8 +1,8 @@
 # Snotra-backup
 In Norse mythology, Snotra (Old Norse "clever") is a goddess associated with wisdom.
 
-Snotra-backup is a backup script that uses duplicity and mysqldump to backup up files, folders and databases.
-It can also sync the backup folder with wither Google Cloud Storage or Amazon AWS (untested), or both.
+Snotra-backup is a backup script that uses *duplicity* and *mysqldump* to back up and encrypt files, folders and databases.
+It can also sync the backups with wither Google Cloud Storage or Amazon AWS (untested), or both.
 
 ## Requirements
 * [Python](https://www.python.org/)
