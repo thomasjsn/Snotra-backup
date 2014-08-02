@@ -13,29 +13,27 @@ It can also sync the backup folder with wither Google Cloud Storage or Amazon AW
 
 ## Installation
 Create symbolic link for shared library files:
-
-```
-#!bash
+```bash
 $ ln -s /path/to/snotra/share/ /usr/local/share/snotra
 ```
-Create symbolic link in ```sbin``` folder, this is not required but will make Snotra system-wide available:
-```
-#!bash
+
+Create symbolic link in `sbin` folder, this is not required but will make Snotra system-wide available for the root user:
+```bash
 $ ln -s /path/to/snotra/snotra.py /usr/local/sbin/snotra.py
 ```
 
 ## Command-line arguments
-* ```--dry```: Show all commands, but do nothing.
+Argument | Action
+--- | ---
+`--dry` | Show all commands, but do nothing.
 
 ## Config file
-See comments in [snotra.conf.sample](snotra.conf.sample)
+The config file is normally placed in `/etc/snotra/snotra.conf`. See comments in [snotra.conf.sample] for parameters.
 
 ## Cron job
-Place the following in ```/etc/cron.d/snotra```, this make will make it run every night at 3:30:
+Create file `/etc/cron.d/snotra` with the content below, this make will make Snotra/etc/cron.d/snotra run every night at 3:30:
 
-```
-#!cron
-
+```cron
 MAILTO=root
 
 # Run daily backup
@@ -49,4 +47,4 @@ TBD
 GNU General Public License v.3
 
 ## Issues
-The application is still work in progress so there may be bugs. Please report all bugs to the issue tracker on this repository ([here](https://github.com/HebronNor/Hotsoup/issues)).
+The application is still work in progress so there may be bugs. Please report all bugs to the issue tracker on this repository ([here](https://github.com/HebronNor/Snotra-backup/issues)).
