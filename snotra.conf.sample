@@ -91,9 +91,9 @@ source = /tmp/db
 target = /db
 # Comma separeted list of databases to dump, will be placed in 'source' folder.
 database = my_website, mysql
-# Command to execute before executing any backup steps.
+# Comma separeted list of command to execute before executing any backup steps.
 pre_action = mkdir %(source)s
-# Commend to execute after backup has been executed.
+# Comma separeted list of commend to execute after backup has been executed.
 post_action = rm -rf %(source)s
 
 #

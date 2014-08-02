@@ -139,8 +139,9 @@ for (i, item) in enumerate(Config.sections()):
       logging.info('Start: %s', item)
 
       if not pre_action == None:
-        pre_command = (pre_action % {'source': source, 'target': target})
-        RunCommand(pre_command)
+        for (x, pre_item) in enumerate(pre_action.split(',')):
+          pre_command = (pre_item.strip() % {'source': source, 'target': target})
+          RunCommand(pre_command)
 
       if not database == None:
         for (y, db_item) in enumerate(database.split(',')):
@@ -158,8 +159,9 @@ for (i, item) in enumerate(Config.sections()):
         RunCommand(rm_command, True)
 
       if not post_action == None:
-        post_command = (post_action % {'source': source, 'target': target})
-        RunCommand(post_command)
+        for (x, post_item) in enumerate(post_action.split(',')):
+          post_command = (post_item.strip() % {'source': source, 'target': target})
+          RunCommand(post_command)
 
       logging.info('Finished: %s', item)
 
