@@ -16,8 +16,18 @@
 # Passphrase to use when encrypting the backups with duplicity.
 gpg_passphrase = SomethingSecret
 
+# Target backend, allowed (file, ftp, ssh)
+# Note: Post backup actions will only work if backend is 'file'
+target_backend = file
+
 # Folder where all backups will be stored.
 target_folder = /backup
+
+# Host to upload backup to, used for target backend 'ftp' and 'ssh'
+# Not to be confused with Google Cloud Storage or Amazon AWS
+target_host = SomeHost
+host_user   = Username
+host_pass   = Password
 
 # Location of Snotra-backup log file
 log_file = /var/log/snotra.log
@@ -43,14 +53,14 @@ db_user = backup
 db_pass = SomethingSecret
 
 #
-# CLOUD STORAGE
+# POST BACKUP ACTION
 #
 
 #
-# Google Cloud Storage
+# Upload to Google Cloud Storage
 
 # gsutil is used for connecting to Google Cloud Storage.
-gsutil_enable = true
+gsutil_enabled = true
 
 # Folder where 'gsutil' executable can be located.
 gsutil_folder = /path/to/gsutil
@@ -59,20 +69,34 @@ gsutil_folder = /path/to/gsutil
 gs_bucket = bucket-name
 
 #
-# Amazon AWS
+# Upload to Amazon AWS
 
 # s3cmd is used for connecting to Amazon AWS.
 s3cmd_enabled = false
 
 # Folder where 's3cmd' executable can be located.
-s3cmd_folder  = /path/to/s3cmd
+s3cmd_folder = /path/to/s3cmd
 
 # Name of storage bucket in Amazon AWS.
-s3_bucket     = bucket-name
+s3_bucket = bucket-name
+
+#
+# Custom command
+#
+# Will be executed after all backup definitions are complete.
+# Variables available for cc_action: %(target_folder)s %(log_file)s
+
+# Turn custom action on/off
+cc_enabled = true
+
+# Comma separated list of command to execute.
+cc_action = echo %(target_folder)s, echo %(log_file)s
 
 #
 # BACKUP DEFINITIONS
 #
+
+# Variables available for post/pre_actions: %(source)s %(target)s
 
 #
 # Example 1
@@ -89,11 +113,11 @@ enabled = true
 source = /tmp/db
 # Target folder, appended to global 'target_folder'. Set to 'source' if not defined.
 target = /db
-# Comma separeted list of databases to dump, will be placed in 'source' folder.
+# Comma separated list of databases to dump, will be placed in 'source' folder.
 database = my_website, mysql
-# Comma separeted list of command to execute before executing any backup steps.
+# Comma separated list of command to execute before executing any backup steps.
 pre_action = mkdir %(source)s
-# Comma separeted list of commend to execute after backup has been executed.
+# Comma separated list of commend to execute after backup has been executed.
 post_action = rm -rf %(source)s
 
 #
@@ -102,27 +126,27 @@ post_action = rm -rf %(source)s
 
 [etc]
 enabled = true
-source  = /etc
+source = /etc
 
 #
 # Definition suggestions
 
 [home]
 enabled = false
-source  = /home
+source = /home
 
 [root]
 enabled = false
-source  = /root
+source = /root
 
 [var]
 enabled = false
-source  = /var
+source = /var
 
 [usr/local]
 enabled = false
-source  = /usr/local
+source = /usr/local
 
 [usr/share]
 enabled = false
-source  = /usr/share
+source = /usr/share

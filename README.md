@@ -2,12 +2,14 @@
 In Norse mythology, Snotra (Old Norse "clever") is a goddess associated with wisdom.
 
 Snotra-backup is a backup script that uses *duplicity* and *mysqldump* to back up and encrypt files, folders and databases.
-It can also sync the backups with wither Google Cloud Storage or Amazon AWS (untested), or both.
+It can also synchronize the backups with Google Cloud Storage and/or Amazon AWS (untested). In addition you can write your own command that is
+executed when all backup definitions are done, that way you can move, copy or upload the files wherever. It is up to you.
 
 ## Requirements
 * [Python](https://www.python.org/)
 * [duplicity](http://duplicity.nongnu.org/)
 * [mysqldump](http://www.linuxcommand.org/man_pages/mysqldump1.html) (if backing up databases)
+* [NcFTP](http://www.ncftp.com/) (if backend 'ftp')
 * [gsutil](https://developers.google.com/storage/docs/gsutil) (if sync with Google Cloud Storage)
 * [s3cmd](http://s3tools.org/s3cmd) (if sync with Amazon AWS)
 
@@ -25,7 +27,8 @@ $ sudo ln -s /path/to/snotra/snotra.py /usr/local/sbin/snotra.py
 ## Command-line arguments
 Argument | Action
 --- | ---
-`-d, --dry-run` | Show all commands, but do nothing.
+`-s, --show` | Show all commands, but do nothing.
+`-n, --dry-run` | Show that would have been done, but do nothing.
 `-c, --config <file>` | Run with the spesified config file.
 `-v` | Print version.
 
