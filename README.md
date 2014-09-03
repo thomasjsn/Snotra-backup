@@ -1,8 +1,8 @@
 # Snotra-backup
 In Norse mythology, Snotra (Old Norse "clever") is a goddess associated with wisdom.
 
-Snotra-backup is a backup script that uses *duplicity* and *mysqldump* to back up and encrypt files, folders and databases.
-It can also synchronize the backups with Google Cloud Storage and/or Amazon AWS (untested). In addition you can write your own command that is
+Snotra-backup is a backup script that uses *duplicity* and *mysqldump* to back up and encrypt files, folders and databases. It supports multiple
+backends, and it can synchronize the backups with Google Cloud Storage and/or Amazon AWS (untested). In addition you can write your own command that is
 executed when all backup definitions are done, that way you can move, copy or upload the files wherever. It is up to you.
 
 ## Requirements
@@ -12,6 +12,11 @@ executed when all backup definitions are done, that way you can move, copy or up
 * [NcFTP](http://www.ncftp.com/) (if backend 'ftp')
 * [gsutil](https://developers.google.com/storage/docs/gsutil) (if sync with Google Cloud Storage)
 * [s3cmd](http://s3tools.org/s3cmd) (if sync with Amazon AWS)
+
+## Supported backends
+* file
+* ftp
+* ssh
 
 ## Installation
 Create symbolic link for shared library files:
@@ -52,7 +57,15 @@ Snotra-backup logs to `/var/log/snotra.log` by default, but this can be changed 
 Since the log file can get pretty big over time it's wise to rotate it every now and then. Create file `/etc/logrotate.d/snotra` with the content below, this will make logrotate pick up the logfile:
 
 ```logrotate
-TBD
+/var/log/snotra.log {
+        weekly
+        rotate 4
+        missingok
+        compress
+        delaycompress
+        notifempty
+        create 640 root adm
+}
 ```
 
 ## Issues
