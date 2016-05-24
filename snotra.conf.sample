@@ -91,7 +91,8 @@ s3_bucket = bucket-name
 cc_enabled = true
 
 # Comma separated list of command to execute.
-cc_action = echo %(target_folder)s, echo %(log_file)s
+# E.g. rync backup (target) folder with remove server using rsync over ssh.
+cc_action = rsync -aqze 'ssh -p 443' --delete /backup/ user@your.server:/backup/
 
 #
 # BACKUP DEFINITIONS
