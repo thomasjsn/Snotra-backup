@@ -147,6 +147,17 @@ for (i, item) in enumerate(Config.sections()):
     # What files to back-up?
     source = Config.get(item, 'source')
 
+    # What files to exclude?
+    try:
+      exclude = Config.get(item, 'exclude')
+      exclude_str = ""
+
+      for exl in exclude.split(','):
+        exclude_str += '--exclude %s ' % exl
+
+    except ConfigParser.NoOptionError:
+      exclude_str = ""
+
     # Is a database defined? If not; set empty.
     try:
       database = Config.get(item, 'database')
@@ -174,6 +185,8 @@ for (i, item) in enumerate(Config.sections()):
     # Check if full_if_older and complete the option.
     if not full_if_older == '':
       full_if_older_str = '--full-if-older-than %s' % full_if_older
+    else:
+      full_if_older_str = ''
 
     # Carry of backup definition if enabled.
     if enabled:
@@ -200,8 +213,8 @@ for (i, item) in enumerate(Config.sections()):
       RunCommand(cl_command, True)
           
       # Do duplicity backup.
-      cp_command = ('duplicity %(full_if_older)s %(source)s %(prefix)s%(folder)s%(target)s --log-file %(log)s' %
-                   {'full_if_older': full_if_older_str, 'source': source, 'prefix': target_prefix, 'folder': target_folder, 'target': target, 'log': duplicity_log})
+      cp_command = ('duplicity %(full_if_older)s %(source)s %(prefix)s%(folder)s%(target)s %(exclude)s --log-file %(log)s' %
+                   {'full_if_older': full_if_older_str, 'source': source, 'prefix': target_prefix, 'folder': target_folder, 'target': target, 'exclude': exclude_str, 'log': duplicity_log})
       RunCommand(cp_command, True)
 
       # If remove-if-older enabled, run command.

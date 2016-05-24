@@ -36,6 +36,7 @@ log_file = /var/log/snotra.log
 # Time: s, m, h, D, W, M, Y (seconds, minutes, hours, days, weeks, months, years)
 
 # Force full backup (instead of incremental) if the last full was this long ago.
+# Leave empty to turn off.
 full-if-older-than = 1W
 
 # Remove any backup files that are older than this, unless they have incremental
@@ -107,26 +108,34 @@ cc_action = echo %(target_folder)s, echo %(log_file)s
 
 # Name of definition (required).
 [database]
+
 # Turn on/off definition (required).
 enabled = true
+
 # Folder to back-up (required).
 source = /tmp/db
+
 # Target folder, appended to global 'target_folder'. Set to 'source' if not defined.
 target = /db
+
 # Comma separated list of databases to dump, will be placed in 'source' folder.
 database = my_website, mysql
+
 # Comma separated list of command to execute before executing any backup steps.
 pre_action = mkdir %(source)s
+
 # Comma separated list of commend to execute after backup has been executed.
 post_action = rm -rf %(source)s
 
 #
 # Example 2
 # * Run duplicity backup on /etc and store in /backup/etc
+# * Exclude folders /tmp/db/1 and /tmp/db/2
 
 [etc]
 enabled = true
 source = /etc
+exclude = /tmp/db/1,/tmp/db/2
 
 #
 # Definition suggestions
