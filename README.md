@@ -16,7 +16,7 @@ executed when all backup definitions are done, that way you can move, copy or up
 ## Supported backends
 * file
 * ftp
-* ssh
+* rsync
 
 ## Installation
 Create symbolic link for shared library files:
@@ -47,7 +47,7 @@ Create file `/etc/cron.d/snotra` with the content below, this make will make Sno
 MAILTO=root
 
 # Run daily backup
-30 3 * * * root [ -x /usr/local/sbin/snotra.py ] && /usr/local/sbin/snotra.py
+30 3 * * * root [ -x /usr/local/sbin/snotra.py ] && /usr/local/sbin/snotra.py > /dev/null
 ```
 
 ## Log file
@@ -66,6 +66,26 @@ Since the log file can get pretty big over time it's wise to rotate it every now
         notifempty
         create 640 root adm
 }
+```
+
+## Duplicity operations
+### Verify
+```
+duplicity verify rsync://user@your.domain:1234//backup/etc /etc
+```
+
+### List files
+```
+duplicity list-current-files rsync://user@your.domain:1234//backup/etc /etc
+```
+
+### Restore
+```
+# Get latest
+duplicity --file-to-restore apt/sources.list rsync://user@your.domain:1234//backup/etc /home/user/sources.list
+
+# Get file from 4 days ago
+duplicity -t 3D --file-to-restore apt/sources.list rsync://user@your.domain:1234//backup/etc /home/user/sources.list
 ```
 
 ## Issues

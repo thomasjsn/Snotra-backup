@@ -64,6 +64,7 @@ gpg_passphrase = Config.get('DEFAULT', 'gpg_passphrase')
 target_backend = Config.get('DEFAULT', 'target_backend')
 target_folder  = Config.get('DEFAULT', 'target_folder')
 target_host    = Config.get('DEFAULT', 'target_host')
+target_port    = Config.get('DEFAULT', 'target_port')
 
 host_user = Config.get('DEFAULT', 'host_user')
 host_pass = Config.get('DEFAULT', 'host_pass')
@@ -85,15 +86,15 @@ s3_bucket     = Config.get('DEFAULT', 's3_bucket')
 cc_enabled = Config.getboolean('DEFAULT', 'cc_enabled')
 cc_action  = Config.get('DEFAULT', 'cc_action')
 
-target_backends = ['file', 'ftp', 'ssh']
+target_backends = ['file', 'ftp', 'rsync']
 target_prefix = ''
 
 if not target_backend in target_backends:
   print 'Target backend error, allowed: %s' % ', '.join(target_backends)
   exit(2)
 
-if target_backend in ['ftp', 'ssh']:
-  target_prefix = ('%(backend)s://%(uid)s@%(host)s' % { 'backend': target_backend, 'uid': host_user, 'host': target_host })
+if target_backend in ['ftp', 'rsync']:
+  target_prefix = ('%(backend)s://%(uid)s@%(host)s:%(port)s/' % { 'backend': target_backend, 'uid': host_user, 'host': target_host, 'port': target_port })
 else:
   target_prefix = '%s://' % target_backend
 
@@ -113,9 +114,9 @@ def RunCommand(command, duplicity = False):
   # Run command if not dry-run.
   if not show_only:
     if not duplicity:
-      subprocess.call(shlex.split(command))
+      subprocess.check_call(shlex.split(command))
     else:
-      subprocess.call(shlex.split(command), stdout=FNULL, stderr=subprocess.STDOUT)
+      subprocess.check_call(shlex.split(command))
   else:
     print shlex.split(command)
 
@@ -134,8 +135,8 @@ def RunCommand(command, duplicity = False):
 # Set duplicity gpg passphrase as environment variable.
 os.environ["PASSPHRASE"] = gpg_passphrase
 
-# If backend is ftp ot ssh; set password as environment variable.
-if target_backend in ['ftp', 'ssh'] and not target_backend == '':
+# If backend is ftp; set password as environment variable.
+if target_backend in ['ftp'] and not target_backend == '':
   os.environ["FTP_PASSWORD"] = host_pass
 
 # Enumerate through all backup definitios.
