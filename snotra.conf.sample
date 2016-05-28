@@ -26,6 +26,7 @@ target_folder = /backup
 # Host to upload backup to, used for target backend 'ftp' and 'ssh'
 # Not to be confused with Google Cloud Storage or Amazon AWS
 target_host = SomeHost
+target_port = SomePort
 host_user   = Username
 host_pass   = Password
 
@@ -92,7 +93,7 @@ cc_enabled = true
 
 # Comma separated list of command to execute.
 # E.g. rync backup (target) folder with remove server using rsync over ssh.
-cc_action = rsync -aqze 'ssh -p 443' --delete /backup/ user@your.server:/backup/
+cc_action = echo %(target_folder)s, echo %(log_file)s
 
 #
 # BACKUP DEFINITIONS
