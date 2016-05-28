@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # This file is part of Snotra-backup.
 #
@@ -18,10 +18,10 @@ import getopt
 __author__ = "Thomas Jensen"
 __version__ = "$Revision$"
 __date__ = "$Date$"
-__copyright__ = "Copyright (c) 2014 Thomas Jensen"
+__copyright__ = "Copyright (c) 2016 Thomas Jensen"
 __license__ = "MIT"
 
-version = "0.3.0"
+version = "0.4.0"
 
 # Make our share library folder available.
 sys.path.insert(1, "/usr/local/share/snotra")
