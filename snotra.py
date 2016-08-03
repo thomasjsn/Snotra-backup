@@ -260,7 +260,7 @@ if target_backend == 'file':
     # If s3cmd is enabled, run it.
     if s3cmd_enabled:
         logging.info('Synchronizing to: %s', 'Amazon AWS')
-        s3cmd_cmd = ('%(folder)s/s3cmd -q sync --delete-removed -r %(target)s gs://%(bucket)s' %
+        s3cmd_cmd = ('%(folder)s/s3cmd -q sync --delete-removed -r %(target)s s3://%(bucket)s' %
                      {'folder': s3cmd_folder, 'target': target_folder, 'bucket': s3_bucket})
         run_command(s3cmd_cmd)
 
