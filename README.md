@@ -96,7 +96,7 @@ duplicity -t 3D --file-to-restore apt/sources.list rsync://user@your.domain:1234
 
 ## Issues
 The application is still work in progress so there may be bugs. Please report all bugs to the issue tracker on this
-repository ([here](https://github.com/HebronNor/Snotra-backup/issues)).
+repository.
 
 ## Author
 Thomas Jensen
